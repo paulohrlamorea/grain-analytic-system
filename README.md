@@ -112,61 +112,53 @@ erDiagram
 
 ### Dicionário de Tabelas
 
-| Camada | Tabela | Granularidade e Finalidade |
+| Camada | Tabela | Finalidade |
 | :--- | :--- | :--- |
-| **Staging** | `dbo.stg_dados_clima` | Recepção bruta das coletas meteorológicas com carimbo de auditoria (`data_processamento_etl`). |
-| **Dimensão** | `dbo.dim_equipamento` | Cadastro mestre das unidades físicas de análise, modelos e versões de firmware. |
-| **Dimensão** | `dbo.dim_localizacao` | Atributos geográficos e macrorregiões agrícolas das unidades monitoradas. |
-| **Fato** | `dbo.fato_leitura_grao` | Registro transacional por amostra analisada (umidade, densidade, índice refratativo e predição ML). |
-| **Fato** | `dbo.fato_clima_diario` | Série histórica consolidada das variáveis climáticas diárias por localização. |
+| **Staging** | `dbo.stg_dados_clima` | Recepção bruta das coletas climáticas com auditoria (`data_processamento_etl`). |
+| **Dimensão** | `dbo.dim_equipamento` | Cadastro das unidades físicas, modelos e versões de firmware. |
+| **Dimensão** | `dbo.dim_localizacao` | Dados geográficos e regiões agrícolas das unidades. |
+| **Fato** | `dbo.fato_leitura_grao` | Leituras de umidade, densidade, índice refratativo e predição ML. |
+| **Fato** | `dbo.fato_clima_diario` | Série histórica climática consolidada por localização. |
 
 ---
 
 ## 📊 Camada Semântica e Indicadores (Power BI)
 
-O dashboard executivo foi desenvolvido aplicando princípios de **Data Storytelling** e **UI/UX Design** (prototipado previamente no Figma), permitindo filtragem cruzada por **Equipamento** e **Janela Temporal**.
+Painel executivo prototipado no **Figma**, com filtragem cruzada por **Equipamento** e **Data de Leitura**.
 
 ### Métricas e Regras de Negócio (DAX)
 
-| Indicador (KPI) | Lógica / Expressão DAX | Objetivo Analítico |
+| Indicador (KPI) | Expressão DAX | Objetivo |
 | :--- | :--- | :--- |
-| **Total de Amostras** | `COUNTROWS(fato_leitura_grao)` | Volume total de grãos processados pelos sensores no período filtrado. |
-| **Umidade Média (%)** | `AVERAGE(fato_leitura_grao[umidade_grao_pct])` | Monitoramento crítico do teor de água para prevenção de fermentação e perdas na armazenagem. |
-| **% Grãos Inteiros** | `DIVIDE(CALCULATE([Total_Leituras], classe = "INTEIRO"), [Total_Leituras])` | Índice de qualidade padrão (lotes dentro da especificação comercial ideal). |
-| **% Grãos Avariados** | `DIVIDE(CALCULATE([Total_Leituras], classe IN {"ARDIDO", "IMATURO", "PICADO"}), [Total_Leituras])` | Taxa consolidada de defeitos para cálculo de deságio e triagem operacional. |
+| **Total de Amostras** | `COUNTROWS(fato_leitura_grao)` | Volume total de leituras processadas. |
+| **Umidade Média (%)** | `AVERAGE(fato_leitura_grao[umidade_grao_pct])` | Monitoramento do teor de água na armazenagem. |
+| **% Grãos Inteiros** | `DIVIDE(CALCULATE([Total_Leituras], classe = "INTEIRO"), [Total_Leituras])` | Lotes dentro do padrão comercial ideal. |
+| **% Grãos Avariados** | `DIVIDE(CALCULATE([Total_Leituras], classe IN {"ARDIDO", "IMATURO", "PICADO"}), [Total_Leituras])` | Taxa de defeitos para cálculo de deságio. |
 
-### Arquitetura Visual do Painel
-* **Distribuição por Classe de Grão (Gráfico de Rosca):** Composição volumétrica e percentual das classes preditas pelo algoritmo de classificação.
-* **Média de Umidade ao Longo do Tempo (Gráfico de Área):** Análise de série temporal para detecção rápida de anomalias e picos de umidade por lote.
-* **Volume de Amostra por Equipamento (Gráfico de Colunas):** Balanceamento de carga e disponibilidade operacional entre as unidades (`Cascavel`, `Passo Fundo`, `Rio Verde` e `Sorriso`).
-* **Últimas Leituras de Grãos (Tabela Analítica):** Visão granular de auditoria exibindo timestamp, equipamento, umidade (`%`), densidade (`g/L`) e classificação atribuída.
+### Visuais do Painel
+* **Distribuição por Classe de Grão (Rosca):** Proporção volumétrica e percentual por classificação.
+* **Média de Umidade ao Longo do Tempo (Área):** Monitoramento temporal para detecção de picos de umidade.
+* **Volume de Amostra por Equipamento (Colunas):** Comparativo operacional entre as 4 unidades (`Cascavel`, `Passo Fundo`, `Rio Verde` e `Sorriso`).
+* **Últimas Leituras de Grãos (Tabela):** Auditoria granular com timestamp, equipamento, umidade, densidade e classe predita.
 
-🚀 Como Executar o Projeto
+---
 
-Clone o repositório:
+## 🚀 Como Executar o Projeto
 
-git clone https://github.com/paulohrlamorea/grain-analytic-system.git
-cd grain-analytic-system
+1. **Clone o repositório e instale as dependências:**
+   ```bash
+   git clone [https://github.com/paulohrlamorea/grain-analytic-system.git](https://github.com/paulohrlamorea/grain-analytic-system.git)
+   cd grain-analytic-system
+   pip install -r requirements.txt
+   ```
 
+2. **Configure o Banco de Dados:**
+   * Rode `src/database/schema_grain_analytic.sql` no SSMS para criar o `GrainAnalyticDB`.
+   * Ajuste `DB_SERVER` em `src/database/carga_sql.py` conforme sua instância (ex: `.\SQLEXPRESS`).
 
-Instale as dependências:
-
-pip install -r requirements.txt
-
-
-Configure o Banco de Dados:
-
-Execute o script src/database/schema_grain_analytic.sql no SQL Server Management Studio (SSMS) para criar o banco GrainAnalyticDB e suas tabelas.
-
-Ajuste a variável DB_SERVER em src/database/carga_sql.py conforme sua instância local (ex: .\SQLEXPRESS).
-
-Popule os dados e execute a pipeline:
-
-python -m src.database.gerar_leituras_reais
-python main.py
-
-
-Visualize o Dashboard:
-
-Abra o arquivo .pbix no Power BI Desktop e atualize a fonte de dados apontando para a sua instância local do SQL Server.
-
+3. **Execute a pipeline e abra o painel:**
+   ```bash
+   python -m src.database.gerar_leituras_reais
+   python main.py
+   ```
+   * Abra `dashboard/grain_analytic.pbix` no **Power BI Desktop** e atualize a conexão com o SQL Server.
