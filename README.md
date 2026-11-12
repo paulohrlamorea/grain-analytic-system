@@ -65,43 +65,81 @@ grain-analytic-system/
 └── README.md                                # Documentação do projeto
 ```
 
-🗄️ Modelo de Dados (SQL Server)
+## 🗄️ Arquitetura e Modelagem de Dados (SQL Server)
 
-O banco de dados GrainAnalyticDB foi estruturado seguindo boas práticas de Data Warehouse:
+O banco de dados **`GrainAnalyticDB`** foi projetado sob o paradigma de **Modelagem Dimensional (Star Schema)**, separando a camada de ingestão bruta (*Staging*) das tabelas analíticas (*Dimensões* e *Fatos*) para otimizar o desempenho de consultas e o treinamento de modelos de Machine Learning.
 
-dbo.stg_dados_clima: Recepção bruta e rastreabilidade (data_processamento_etl) das coletas climáticas.
+```mermaid
+erDiagram
+    dim_equipamento ||--o{ fato_leitura_grao : "1:N (sk_equipamento)"
+    dim_localizacao ||--o{ dim_equipamento : "1:N (sk_localizacao)"
+    dim_localizacao ||--o{ fato_clima_diario : "1:N (sk_localizacao)"
 
-dbo.dim_equipamento: Cadastro das unidades físicas, modelos e versões de firmware.
+    dim_equipamento {
+        int sk_equipamento PK
+        varchar codigo_equipamento UK
+        varchar modelo
+        varchar versao_firmware
+        varchar status_operacional
+    }
 
-dbo.dim_localizacao: Dados geográficos e regiões agrícolas das unidades.
+    fato_leitura_grao {
+        bigint sk_fato_leitura PK
+        int sk_equipamento FK
+        datetime data_hora_leitura
+        decimal umidade_grao_pct
+        decimal densidade_g_l
+        decimal indice_refratativo
+        varchar classe_grao_predita
+        decimal score_confianca
+    }
 
-dbo.fato_leitura_grao: Registro granular das leituras de umidade (%), densidade (g/L), índice refratativo e classificação predita.
+    dim_localizacao {
+        int sk_localizacao PK
+        varchar codigo_ibge UK
+        varchar municipio
+        char uf
+    }
 
-dbo.fato_clima_diario: Consolidação climática diária por localização.
+    fato_clima_diario {
+        bigint sk_fato_clima PK
+        int sk_localizacao FK
+        date data_medicao
+        decimal temperatura_media_c
+        decimal umidade_relativa_pct
+    }
+```
 
-📊 Indicadores e Visualizações (Power BI)
+### Dicionário de Tabelas
 
-O painel foi estruturado para leitura rápida da operação, com filtros dinâmicos por Equipamento e Data de Leitura:
+| Camada | Tabela | Granularidade e Finalidade |
+| :--- | :--- | :--- |
+| **Staging** | `dbo.stg_dados_clima` | Recepção bruta das coletas meteorológicas com carimbo de auditoria (`data_processamento_etl`). |
+| **Dimensão** | `dbo.dim_equipamento` | Cadastro mestre das unidades físicas de análise, modelos e versões de firmware. |
+| **Dimensão** | `dbo.dim_localizacao` | Atributos geográficos e macrorregiões agrícolas das unidades monitoradas. |
+| **Fato** | `dbo.fato_leitura_grao` | Registro transacional por amostra analisada (umidade, densidade, índice refratativo e predição ML). |
+| **Fato** | `dbo.fato_clima_diario` | Série histórica consolidada das variáveis climáticas diárias por localização. |
 
-KPIs Principais:
+---
 
-Total de Amostras: Contagem total de leituras registradas (COUNTROWS).
+## 📊 Camada Semântica e Indicadores (Power BI)
 
-Umidade Média %: Média percentual de umidade dos lotes analisados (AVERAGE).
+O dashboard executivo foi desenvolvido aplicando princípios de **Data Storytelling** e **UI/UX Design** (prototipado previamente no Figma), permitindo filtragem cruzada por **Equipamento** e **Janela Temporal**.
 
-% Grãos Inteiros: Proporção de grãos dentro do padrão de qualidade aceitável.
+### Métricas e Regras de Negócio (DAX)
 
-% Grãos Avariados: Proporção consolidada de defeitos (ARDIDO, IMATURO e PICADO).
+| Indicador (KPI) | Lógica / Expressão DAX | Objetivo Analítico |
+| :--- | :--- | :--- |
+| **Total de Amostras** | `COUNTROWS(fato_leitura_grao)` | Volume total de grãos processados pelos sensores no período filtrado. |
+| **Umidade Média (%)** | `AVERAGE(fato_leitura_grao[umidade_grao_pct])` | Monitoramento crítico do teor de água para prevenção de fermentação e perdas na armazenagem. |
+| **% Grãos Inteiros** | `DIVIDE(CALCULATE([Total_Leituras], classe = "INTEIRO"), [Total_Leituras])` | Índice de qualidade padrão (lotes dentro da especificação comercial ideal). |
+| **% Grãos Avariados** | `DIVIDE(CALCULATE([Total_Leituras], classe IN {"ARDIDO", "IMATURO", "PICADO"}), [Total_Leituras])` | Taxa consolidada de defeitos para cálculo de deságio e triagem operacional. |
 
-Análises Visuais:
-
-Distribuição por Classe de Grão: Gráfico de rosca com proporção volumétrica e percentual por classificação.
-
-Média de Umidade ao Longo do Tempo: Gráfico de área monitorando variações temporais e picos de umidade.
-
-Volume de Amostra por Equipamento: Comparativo de processamento entre as unidades monitoradas.
-
-Últimas Leituras de Grãos: Tabela analítica detalhada com umidade, densidade e classe predita por registro.
+### Arquitetura Visual do Painel
+* **Distribuição por Classe de Grão (Gráfico de Rosca):** Composição volumétrica e percentual das classes preditas pelo algoritmo de classificação.
+* **Média de Umidade ao Longo do Tempo (Gráfico de Área):** Análise de série temporal para detecção rápida de anomalias e picos de umidade por lote.
+* **Volume de Amostra por Equipamento (Gráfico de Colunas):** Balanceamento de carga e disponibilidade operacional entre as unidades (`Cascavel`, `Passo Fundo`, `Rio Verde` e `Sorriso`).
+* **Últimas Leituras de Grãos (Tabela Analítica):** Visão granular de auditoria exibindo timestamp, equipamento, umidade (`%`), densidade (`g/L`) e classificação atribuída.
 
 🚀 Como Executar o Projeto
 
