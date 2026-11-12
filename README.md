@@ -39,30 +39,31 @@ Business Intelligence: Power BI Desktop (DAX, Modelagem Estrela)
 
 UI/UX Design: Figma (Prototipagem de layout e identidade visual)
 
-📂 Estrutura do Repositório
+## 📂 Estrutura do Repositório
 
+```text
 grain-analytic-system/
 ├── assets/
-│   └── dashboard_preview.png          # Captura de tela do painel final
+│   └── dashboard_preview.png                # Captura de tela do painel final
 ├── data/
 │   └── staging/
 │       └── stg_clima_multiequipamento.xlsx  # Arquivo intermediário de staging
 ├── src/
 │   ├── database/
-│   │   ├── carga_sql.py               # Ingestão de dados de staging para o SQL Server
-│   │   ├── gerar_leituras_reais.py    # Simulador de padrões físicos dos sensores
-│   │   └── schema_grain_analytic.sql  # Scripts DDL (Staging, Dimensões e Fatos)
+│   │   ├── carga_sql.py                     # Ingestão de dados de staging para o SQL Server
+│   │   ├── gerar_leituras_reais.py          # Simulador de padrões físicos dos sensores
+│   │   └── schema_grain_analytic.sql        # Scripts DDL (Staging, Dimensões e Fatos)
 │   ├── models/
-│   │   └── train_model.py             # Treinamento e validação do modelo de classificação
+│   │   └── train_model.py                   # Treinamento e validação do modelo de classificação
 │   └── scrapers/
-│       └── scraper_clima.py           # Coleta e higienização de dados meteorológicos
+│       └── scraper_clima.py                 # Coleta e higienização de dados meteorológicos
 ├── dashboard/
-│   └── grain_analytic.pbix            # Arquivo do projeto Power BI
-├── etl_clima_scraping.py              # Execução isolada do pipeline climático
-├── main.py                            # Orquestrador principal da pipeline
-├── requirements.txt                   # Dependências do projeto
-└── README.md                          # Documentação do projeto
-
+│   └── grain_analytic.pbix                  # Arquivo do projeto Power BI
+├── etl_clima_scraping.py                    # Execução isolada do pipeline climático
+├── main.py                                  # Orquestrador principal da pipeline
+├── requirements.txt                         # Dependências do projeto
+└── README.md                                # Documentação do projeto
+```
 
 🗄️ Modelo de Dados (SQL Server)
 
