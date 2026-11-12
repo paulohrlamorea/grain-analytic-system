@@ -1,0 +1,22 @@
+# --- Web Scraping e Requisições HTTP ---
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=5.1.0
+urllib3>=2.2.0
+
+# --- Manipulação de Dados e Arquivos (Excel / CSV) ---
+pandas>=2.2.0
+numpy>=1.26.0
+openpyxl>=3.1.2
+
+# --- Conexão e Ingestão em Banco de Dados (SQL Server) ---
+pyodbc>=5.1.0
+SQLAlchemy>=2.0.25
+
+# --- Machine Learning e Ciência de Dados ---
+scikit-learn>=1.4.0
+scipy>=1.12.0
+joblib>=1.3.2
+
+# --- Utilitários e Variáveis de Ambiente ---
+python-dotenv>=1.0.1

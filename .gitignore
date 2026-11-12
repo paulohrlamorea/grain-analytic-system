@@ -1,0 +1,81 @@
+# ==========================================
+# 1. Ambientes Virtuais Python (Virtualenvs)
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# ==========================================
+# 2. Arquivos Temporários e Cache do Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ==========================================
+# 3. Dados de Staging, Logs e Arquivos Gerados
+# ==========================================
+# Ignora arquivos Excel e CSV gerados pelo scraper ou processos de ETL
+data/staging/*.xlsx
+data/staging/*.csv
+data/staging/*.json
+*.log
+
+# Caso queira manter a estrutura de pastas no Git, descomente a linha abaixo:
+# !data/staging/.gitkeep
+
+# ==========================================
+# 4. Arquivos Sensíveis e Credenciais (.env)
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ==========================================
+# 5. Configurações Locais do VS Code e IDEs
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.idea/
+
+# ==========================================
+# 6. Arquivos do Sistema Operacional
+# ==========================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthmb.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
