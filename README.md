@@ -16,12 +16,16 @@ Machine Learning com Validação Cruzada por Grupo (GroupKFold): Classificação
 
 Dashboard Executivo & UI/UX: Interface interativa no Power BI Desktop com design personalizado prototipado no Figma.
 
-🏗️ Arquitetura e Fluxo de Dados
+## 🏗️ Arquitetura e Fluxo de Dados
 
-[Web Scraping Climático] ──┐
-                           ├──► [Camada Staging (.xlsx)] ──► [SQL Server (GrainAnalyticDB)] ──┬──► [Modelo ML (Scikit-Learn)]
-[Simulador de Sensores] ───┘                                                                  └──► [Dashboard Power BI + Figma]
-
+```mermaid
+flowchart LR
+    A[🌐 Web Scraping Climático] --> C[📄 Camada Staging .xlsx]
+    B[⚙️ Simulador de Sensores] --> D[(🗄️ SQL Server: GrainAnalyticDB)]
+    C --> D
+    D --> E[🤖 Modelo ML: Scikit-Learn]
+    D --> F[📊 Dashboard Power BI + Figma]
+```
 
 🛠️ Tecnologias Utilizadas
 
